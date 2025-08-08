@@ -15,7 +15,7 @@
 #include "DoubleLL.h"
 #include "Stack.h"
 #include "Queue.h"
-// Árboles se agregarán luego
+// Árboles despues
 
 class GraficadorEstruDat : public QWidget
 {
@@ -66,11 +66,16 @@ private:
     Stack pila;
     Queue cola;
 
-    // Métodos
+    //funcoines
     void crearInterfaz();
     void cambiarTextos();
     void insertarEjemplo();
     void eliminarEjemplo();
+
+    void accionPila(int opcion);
+    void accionCola(int opcion);
+    void accionLista(int opcion);
+    void accionDLL(int opcion);
 
 private slots:
     void seleccionarEstructura(EstructuraActual estructura);

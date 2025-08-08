@@ -27,7 +27,7 @@ void GraficadorEstruDat::crearInterfaz() {
     // ======== PARTE SUPERIOR ========
     QFrame *headerFrame = new QFrame();
     headerFrame->setFrameShape(QFrame::Box);
-    headerFrame->setStyleSheet("background-color: lightgray;");
+    headerFrame->setStyleSheet("background-color: gray;");
 
     layoutArriba = new QHBoxLayout(headerFrame);
     layoutArriba->setSpacing(5);
@@ -84,8 +84,11 @@ void GraficadorEstruDat::crearInterfaz() {
     btnAccion3->setMinimumHeight(50);
 
     layoutIzquierda->addWidget(btnAccion1);
+    btnAccion1->setStyleSheet("background-color: gray;");
     layoutIzquierda->addWidget(btnAccion2);
+    btnAccion2->setStyleSheet("background-color: gray;");
     layoutIzquierda->addWidget(btnAccion3);
+    btnAccion3->setStyleSheet("background-color: gray;");
 
     connect(btnAccion1, &QPushButton::clicked, this, &GraficadorEstruDat::onAccion1);
     connect(btnAccion2, &QPushButton::clicked, this, &GraficadorEstruDat::onAccion2);
@@ -111,8 +114,9 @@ void GraficadorEstruDat::crearInterfaz() {
 void GraficadorEstruDat::cambiarTextos() {
     // Reset color
     for (auto btn : botonesEstructuras) {
-        btn->setStyleSheet("background-color: lightblue;");
+        btn->setStyleSheet("background-color: cyan;");
     }
+
 
     //Azul oscuro la estru actual
     botonesEstructuras[estructuraActual]->setStyleSheet("background-color: blue; color: white;");
@@ -161,45 +165,56 @@ void GraficadorEstruDat::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    // Área de dibujo: limitar a layoutDerecha
+    // Área de dibujo
     QRect area = QRect(200, 100, width() - 220, height() - 120);
 
-    // Ejemplo: dibujar nodos en línea horizontal
     int x = area.left() + 50;
     int y = area.top() + 100;
     int radio = 40;
     int separacion = 100;
 
-    // Valores de ejemplo (luego vendrán de la estructura real)
-    QList<int> valores = {10, 20, 30, 40};
+
+    // --- Obtener valores reales según estructura actual ---
+    QVector<int> valores;
+    switch (estructuraActual) {
+    case LINKED_LIST:
+        valores = listaSimple.getValues();
+        break;
+    case DOUBLE_LL:
+        valores = listaDoble.getValuesForward();
+        break;
+    case STACK:
+        valores = pila.getValues();
+        break;
+    case QUEUE:
+        valores = cola.getValues();
+        break;
+    default:
+        break;
+    }
 
     QPen pen(Qt::black, 2);
     QBrush brush(Qt::white);
     painter.setPen(pen);
     painter.setBrush(brush);
 
+    // --- Dibujar nodos ---
     for (int i = 0; i < valores.size(); i++) {
-        // Dibujar círculo
         painter.drawEllipse(QPointF(x, y), radio, radio);
-
-        // Texto centrado
         painter.drawText(QRectF(x - radio, y - radio, radio*2, radio*2),
                          Qt::AlignCenter, QString::number(valores[i]));
 
-        // Flecha hacia el siguiente nodo
         if (i < valores.size() - 1) {
             int xLineaInicio = x + radio;
             int xLineaFin = x + separacion - radio;
             painter.drawLine(xLineaInicio, y, xLineaFin, y);
-
-            // Flecha simple
             painter.drawLine(xLineaFin, y, xLineaFin - 10, y - 5);
             painter.drawLine(xLineaFin, y, xLineaFin - 10, y + 5);
         }
-
         x += separacion;
     }
 }
+
 
 
 // ======================== ACCIONES ========================
@@ -218,13 +233,75 @@ void GraficadorEstruDat::onAccion3() {
 }
 
 void GraficadorEstruDat::insertarEjemplo() {
-    if (estructuraActual == LINKED_LIST) {
-        listaSimple.insertarFinal(rand() % 100);
+    int val = rand() % 100;
+    switch (estructuraActual) {
+    case LINKED_LIST:
+        listaSimple.insertarFinal(val);
+        listaSimple.imprimir();
+        break;
+    case DOUBLE_LL:
+        listaDoble.insertarFinal(val);
+        listaDoble.imprimirAdelante();
+        break;
+    case STACK:
+        pila.push(val);
+        pila.imprimir();
+        break;
+    case QUEUE:
+        cola.enqueue(val);
+        cola.imprimir();
+        break;
+    default: break;
     }
 }
 
 void GraficadorEstruDat::eliminarEjemplo() {
-    if (estructuraActual == LINKED_LIST) {
+    switch (estructuraActual) {
+    case LINKED_LIST:
         listaSimple.eliminarPos(0);
+        listaSimple.imprimir();
+        break;
+    case DOUBLE_LL:
+        listaDoble.eliminarPos(0);
+        listaDoble.imprimirAdelante();
+        break;
+    case STACK:
+        pila.pop();
+        pila.imprimir();
+        break;
+    case QUEUE:
+        cola.dequeue();
+        cola.imprimir();
+        break;
+    default: break;
     }
+}
+
+void GraficadorEstruDat::accionLista(int opcion){
+    if (opcion ==1){
+        //ACCIONES Insertar
+            //Hacer que el Usuario elija entre
+        //    bool insertarPos(int pos, int val);
+        //    void insertarInicio(int val);
+        //    void insertarFinal(int val);
+        //y hacerlo ingresar los valores requeridos
+    }
+
+    if(opcion==2){
+        //Acciones Borrar
+                //Hacer que el Usuario elija entre
+
+        /*
+        void eliminarVal(int val);
+        bool eliminarPos(int pos);
+        y hacerlo ingresar o el valor o la poscicion
+
+         */
+    }
+
+    if(opcion==3){
+        //Acciones Datos
+            //llamar buscar, y hacer al usuario poner que valor buscar
+    }
+
 }
