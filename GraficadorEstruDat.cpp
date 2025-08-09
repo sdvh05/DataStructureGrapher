@@ -95,10 +95,11 @@ void GraficadorEstruDat::crearInterfaz() {
     connect(btnAccion3, &QPushButton::clicked, this, &GraficadorEstruDat::onAccion3);
 
     // Área de graficado (derecha)
-    QFrame *areaGrafico = new QFrame();
-    areaGrafico->setFrameShape(QFrame::Box);
-    areaGrafico->setStyleSheet("background-color: black;");
-    layoutDerecha = new QVBoxLayout(areaGrafico);
+    areaGrafico = new AreaDibujo();
+    areaGrafico->setMinimumSize(400, 400);
+    layoutDerecha = new QVBoxLayout();
+    layoutDerecha->addWidget(areaGrafico);
+
 
     // Agregar ambas partes a layout principal
     layoutPrincipal->addWidget(panelControl, 1);
@@ -159,73 +160,16 @@ void GraficadorEstruDat::seleccionarEstructura(EstructuraActual estructura) {
 }
 
 // ======================== PINTAR ========================
-void GraficadorEstruDat::paintEvent(QPaintEvent *event) {
-    Q_UNUSED(event);
-
-    QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    // Área de dibujo
-    QRect area = QRect(200, 100, width() - 220, height() - 120);
-
-    int x = area.left() + 50;
-    int y = area.top() + 100;
-    int radio = 40;
-    int separacion = 100;
-
-
-    // --- Obtener valores reales según estructura actual ---
-    QVector<int> valores;
-    switch (estructuraActual) {
-    case LINKED_LIST:
-        valores = listaSimple.getValues();
-        break;
-    case DOUBLE_LL:
-        valores = listaDoble.getValuesForward();
-        break;
-    case STACK:
-        valores = pila.getValues();
-        break;
-    case QUEUE:
-        valores = cola.getValues();
-        break;
-    default:
-        break;
-    }
-
-    QPen pen(Qt::black, 2);
-    QBrush brush(Qt::white);
-    painter.setPen(pen);
-    painter.setBrush(brush);
-
-    // --- Dibujar nodos ---
-    for (int i = 0; i < valores.size(); i++) {
-        painter.drawEllipse(QPointF(x, y), radio, radio);
-        painter.drawText(QRectF(x - radio, y - radio, radio*2, radio*2),
-                         Qt::AlignCenter, QString::number(valores[i]));
-
-        if (i < valores.size() - 1) {
-            int xLineaInicio = x + radio;
-            int xLineaFin = x + separacion - radio;
-            painter.drawLine(xLineaInicio, y, xLineaFin, y);
-            painter.drawLine(xLineaFin, y, xLineaFin - 10, y - 5);
-            painter.drawLine(xLineaFin, y, xLineaFin - 10, y + 5);
-        }
-        x += separacion;
-    }
-}
 
 
 
 // ======================== ACCIONES ========================
 void GraficadorEstruDat::onAccion1() {
     insertarEjemplo();
-    update();
 }
 
 void GraficadorEstruDat::onAccion2() {
     eliminarEjemplo();
-    update();
 }
 
 void GraficadorEstruDat::onAccion3() {
@@ -234,48 +178,61 @@ void GraficadorEstruDat::onAccion3() {
 
 void GraficadorEstruDat::insertarEjemplo() {
     int val = rand() % 100;
+    QVector<int> valores;
     switch (estructuraActual) {
     case LINKED_LIST:
         listaSimple.insertarFinal(val);
         listaSimple.imprimir();
+        valores = listaSimple.getValues();
         break;
     case DOUBLE_LL:
         listaDoble.insertarFinal(val);
         listaDoble.imprimirAdelante();
+        valores = listaDoble.getValuesForward();
         break;
     case STACK:
         pila.push(val);
         pila.imprimir();
+        valores = pila.getValues();
         break;
     case QUEUE:
         cola.enqueue(val);
         cola.imprimir();
+        valores = cola.getValues();
         break;
     default: break;
     }
+    areaGrafico->setValores(valores);
 }
 
 void GraficadorEstruDat::eliminarEjemplo() {
+    QVector<int> valores;
     switch (estructuraActual) {
     case LINKED_LIST:
         listaSimple.eliminarPos(0);
         listaSimple.imprimir();
+        valores = listaSimple.getValues();
         break;
     case DOUBLE_LL:
         listaDoble.eliminarPos(0);
         listaDoble.imprimirAdelante();
+        valores = listaDoble.getValuesForward();
         break;
     case STACK:
         pila.pop();
         pila.imprimir();
+        valores = pila.getValues();
         break;
     case QUEUE:
         cola.dequeue();
         cola.imprimir();
+        valores = cola.getValues();
         break;
     default: break;
     }
+    areaGrafico->setValores(valores);
 }
+
 
 void GraficadorEstruDat::accionLista(int opcion){
     if (opcion ==1){

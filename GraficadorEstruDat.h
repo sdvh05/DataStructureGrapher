@@ -11,6 +11,8 @@
 #include <QVector>
 #include <QMap>
 
+#include "AreaDibujo.h"
+
 #include "LinkedList.h"
 #include "DoubleLL.h"
 #include "Stack.h"
@@ -24,8 +26,6 @@ class GraficadorEstruDat : public QWidget
 public:
     explicit GraficadorEstruDat(QWidget *parent = nullptr);
 
-protected:
-    void paintEvent(QPaintEvent *event) override;
 
 private:
     // ENUM para controlar la estructura actual
@@ -39,10 +39,12 @@ private:
     } estructuraActual;
 
     // UI
-    QHBoxLayout *layoutPrincipal;      // Layout principal horizontal
+    QHBoxLayout *layoutPrincipal;      // Header
     QVBoxLayout *layoutIzquierda;      // Panel de control
-    QVBoxLayout *layoutDerecha;        // Área de dibujo
-    QHBoxLayout *layoutArriba;         // Barra superior
+    QVBoxLayout *layoutDerecha;        //areaGrafico
+    QHBoxLayout *layoutArriba;
+    //QFrame *areaGrafico;
+    AreaDibujo *areaGrafico;
 
     // Botones de selección de estructura
     QMap<EstructuraActual, QPushButton*> botonesEstructuras;
@@ -76,6 +78,8 @@ private:
     void accionCola(int opcion);
     void accionLista(int opcion);
     void accionDLL(int opcion);
+
+    void dibujarNodos(const QVector<int> &valores);
 
 private slots:
     void seleccionarEstructura(EstructuraActual estructura);
