@@ -3,6 +3,8 @@
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPen>
+#include <QInputDialog>
+#include <QMessageBox>
 
 
 GraficadorEstruDat::GraficadorEstruDat(QWidget *parent)
@@ -129,7 +131,7 @@ void GraficadorEstruDat::cambiarTextos() {
     case DOUBLE_LL:   nombre = "Double Linked List"; break;
     case STACK:       nombre = "Stack"; break;
     case QUEUE:       nombre = "Queue"; break;
-    case BST:         nombre = "Binary Search Tree (BST)"; break;
+    case BST:         nombre = "Binary Search \n Tree (BST)"; break;
     case AVL:         nombre = "AVL Tree"; break;
     }
     lblTituloEstructura->setText(nombre);
@@ -156,109 +158,311 @@ void GraficadorEstruDat::cambiarTextos() {
 void GraficadorEstruDat::seleccionarEstructura(EstructuraActual estructura) {
     estructuraActual = estructura;
     cambiarTextos();
-    update();
-}
 
-// ======================== PINTAR ========================
+    switch (estructuraActual) {
+    case LINKED_LIST:
+        areaGrafico->setValores(listaSimple.getValues());
+        break;
+    case DOUBLE_LL:
+        areaGrafico->setValores(listaDoble.getValuesForward());
+        break;
+    case STACK:
+        areaGrafico->setValores(pila.getValues());
+        break;
+    case QUEUE:
+        areaGrafico->setValores(cola.getValues());
+        break;
+    case BST:
+
+        break;
+    case AVL:
+
+        break;
+    }
+
+    areaGrafico->update();
+}
 
 
 
 // ======================== ACCIONES ========================
 void GraficadorEstruDat::onAccion1() {
-    insertarEjemplo();
+    switch (estructuraActual) {
+    case LINKED_LIST:
+        accionLista(1);
+        break;
+    case DOUBLE_LL:
+        accionDLL(1);
+        break;
+    case STACK:
+        accionPila(1);
+        break;
+    case QUEUE:
+        accionCola(1);
+        break;
+    default: break;
+    }
 }
 
 void GraficadorEstruDat::onAccion2() {
-    eliminarEjemplo();
+    switch (estructuraActual) {
+    case LINKED_LIST:
+        accionLista(2);
+        break;
+    case DOUBLE_LL:
+        accionDLL(2);
+        break;
+    case STACK:
+        accionPila(2);
+        break;
+    case QUEUE:
+        accionCola(2);
+        break;
+    default: break;
+    }
 }
 
 void GraficadorEstruDat::onAccion3() {
     qDebug() << "Acción 3 ejecutada";
-}
-
-void GraficadorEstruDat::insertarEjemplo() {
-    int val = rand() % 100;
-    QVector<int> valores;
     switch (estructuraActual) {
     case LINKED_LIST:
-        listaSimple.insertarFinal(val);
-        listaSimple.imprimir();
-        valores = listaSimple.getValues();
+        accionLista(3);
         break;
     case DOUBLE_LL:
-        listaDoble.insertarFinal(val);
-        listaDoble.imprimirAdelante();
-        valores = listaDoble.getValuesForward();
+        accionDLL(3);
         break;
     case STACK:
+        accionPila(3);
+        break;
+    case QUEUE:
+        accionCola(3);
+        break;
+    default:
+        break;
+    }
+}
+
+
+
+
+void GraficadorEstruDat::accionLista(int opcion) {
+    bool ok;
+
+    if (opcion == 1) {
+        // Insertar
+        QStringList opciones;
+        opciones  << "Insertar al inicio" << "Insertar al final" << "Insertar en posición";
+
+        QString seleccion = QInputDialog::getItem(this, "Insertar en Lista",
+                                                  "Seleccione tipo de inserción:", opciones, 0, false, &ok);
+        if (!ok) return;
+
+        int val, pos;
+
+        if (seleccion == "Insertar en posición") {
+            int maxPos = listaSimple.size();
+            pos = QInputDialog::getInt(this, "Insertar en posición",
+                                       "Posición:", 0, 0, maxPos, 1, &ok);
+            if (!ok) return;
+
+            val = QInputDialog::getInt(this, "Insertar en posición",
+                                       "Valor:", 0, -9999, 9999, 1, &ok);
+            if (!ok) return;
+
+            listaSimple.insertarPos(pos, val);
+        }
+        else if (seleccion == "Insertar al inicio") {
+            val = QInputDialog::getInt(this, "Insertar al inicio", "Valor:", 0, -9999, 9999, 1, &ok);
+            if (!ok) return;
+            listaSimple.insertarInicio(val);
+        }
+        else if (seleccion == "Insertar al final") {
+            val = QInputDialog::getInt(this, "Insertar al final", "Valor:", 0, -9999, 9999, 1, &ok);
+            if (!ok) return;
+            listaSimple.insertarFinal(val);
+        }
+    }
+    else if (opcion == 2) {
+        // Eliminar
+        QStringList opciones;
+        opciones << "Eliminar por valor" << "Eliminar por posicion" <<"Limpiar Lista";
+
+        QString seleccion = QInputDialog::getItem(this, "Eliminar de Lista","Seleccione tipo de eliminación:", opciones, 0, false, &ok);
+        if (!ok) return;
+
+        int val, pos;
+
+        if (seleccion == "Eliminar por valor") {
+            val = QInputDialog::getInt(this, "Eliminar por valor", "Valor:", 0, -9999, 9999, 1, &ok);
+            if (!ok) return;
+            listaSimple.eliminarVal(val);
+        }
+        else if (seleccion == "Eliminar por posición") {
+            int maxPos = listaSimple.size();
+            pos = QInputDialog::getInt(this, "Eliminar por posición", "Posición:", 0, 0, maxPos, 1, &ok);
+            if (!ok) return;
+            listaSimple.eliminarPos(pos);
+        }
+        else if(seleccion =="Limpiar Lista"){
+            listaSimple.limpiar();
+        }
+    }
+    else if (opcion == 3) {
+        // Buscar
+        int val = QInputDialog::getInt(this, "Buscar en Lista", "Valor a buscar:", 0, -9999, 9999, 1, &ok);
+        if (!ok) return;
+
+        if (listaSimple.buscar(val)) {
+            QMessageBox::information(this, "Buscar", "El valor SI está en la lista.");
+        } else {
+            QMessageBox::warning(this, "Buscar", "El valor NO está en la lista.");
+        }
+    }
+
+    areaGrafico->setValores(listaSimple.getValues());
+    areaGrafico->update();
+}
+
+void GraficadorEstruDat::accionDLL(int opcion) {
+    bool ok;
+
+    if (opcion == 1) {
+        // Insertar
+        QStringList opciones;
+        opciones  << "Insertar al inicio" << "Insertar al final"<< "Insertar en posición";
+
+        QString seleccion = QInputDialog::getItem(this, "Insertar en Lista Doble",
+                                                  "Seleccione tipo de inserción:", opciones, 0, false, &ok);
+        if (!ok) return;
+
+        int val, pos;
+
+        if (seleccion == "Insertar en posición") {
+            int maxPos = listaDoble.size();
+            pos = QInputDialog::getInt(this, "Insertar en posición",
+                                       "Posición:", 0, 0, maxPos, 1, &ok);
+            if (!ok) return;
+
+            val = QInputDialog::getInt(this, "Insertar en posición",
+                                       "Valor:", 0, -9999, 9999, 1, &ok);
+            if (!ok) return;
+
+            listaDoble.insertarPos(pos, val);
+        }
+        else if (seleccion == "Insertar al inicio") {
+            val = QInputDialog::getInt(this, "Insertar al inicio", "Valor:", 0, -9999, 9999, 1, &ok);
+            if (!ok) return;
+            listaDoble.insertarInicio(val);
+        }
+        else if (seleccion == "Insertar al final") {
+            val = QInputDialog::getInt(this, "Insertar al final", "Valor:", 0, -9999, 9999, 1, &ok);
+            if (!ok) return;
+            listaDoble.insertarFinal(val);
+        }
+    }
+    else if (opcion == 2) {
+        // Eliminar
+        QStringList opciones;
+        opciones << "Eliminar por valor" << "Eliminar por posición"<<"Limpiar Lista";
+
+        QString seleccion = QInputDialog::getItem(this, "Eliminar de Lista Doble",
+                                                  "Seleccione tipo de eliminación:", opciones, 0, false, &ok);
+        if (!ok) return;
+
+        int val, pos;
+
+        if (seleccion == "Eliminar por valor") {
+            val = QInputDialog::getInt(this, "Eliminar por valor", "Valor:", 0, -9999, 9999, 1, &ok);
+            if (!ok) return;
+            listaDoble.eliminarVal(val);
+        }
+        else if (seleccion == "Eliminar por posición") {
+            int maxPos = listaDoble.size();
+            if (listaDoble.size() == 0) return;
+            pos = QInputDialog::getInt(this, "Eliminar por posición", "Posición:", 0, 0, maxPos, 1, &ok);
+            listaDoble.eliminarPos(pos);
+        }
+        else if(seleccion =="Limpiar Lista"){
+            listaDoble.limpiar();
+        }
+    }
+    else if (opcion == 3) {
+        // Buscar
+        int val = QInputDialog::getInt(this, "Buscar en Lista Doble", "Valor a buscar:", 0, -9999, 9999, 1, &ok);
+        if (!ok) return;
+
+        if (listaDoble.buscar(val)) {
+            QMessageBox::information(this, "Buscar", "El valor SÍ está en la lista doble.");
+        } else {
+            QMessageBox::warning(this, "Buscar", "El valor NO está en la lista doble.");
+        }
+    }
+
+    areaGrafico->setValores(listaDoble.getValuesForward());
+    areaGrafico->update();
+}
+
+void GraficadorEstruDat::accionPila(int opcion) {
+    bool ok;
+
+    if (opcion == 1) {
+        // Push
+        int val = QInputDialog::getInt(this, "Push en Pila", "Valor:", 0, -9999, 9999, 1, &ok);
+        if (!ok) return;
         pila.push(val);
-        pila.imprimir();
-        valores = pila.getValues();
-        break;
-    case QUEUE:
+    }
+    else if (opcion == 2) {
+        // Pop
+        if (pila.isEmpty()) {
+            QMessageBox::warning(this, "Pop", "La pila está vacía.");
+            return;
+        }
+        int val = pila.pop();
+        QMessageBox::information(this, "Pop", QString("Valor eliminado: %1").arg(val));
+    }
+    else if (opcion == 3) {
+        // Peek
+        if (pila.isEmpty()) {
+            QMessageBox::warning(this, "Peek", "La pila está vacía.");
+            return;
+        }
+        int val = pila.peek();
+        QMessageBox::information(this, "Peek", QString("Valor en el tope: %1").arg(val));
+    }
+
+    areaGrafico->setValores(pila.getValues());
+    areaGrafico->update();
+}
+
+void GraficadorEstruDat::accionCola(int opcion) {
+    bool ok;
+
+    if (opcion == 1) {
+        // Enqueue
+        int val = QInputDialog::getInt(this, "Enqueue en Cola", "Valor:", 0, -9999, 9999, 1, &ok);
+        if (!ok) return;
         cola.enqueue(val);
-        cola.imprimir();
-        valores = cola.getValues();
-        break;
-    default: break;
     }
-    areaGrafico->setValores(valores);
+    else if (opcion == 2) {
+        // Dequeue
+        if (cola.isEmpty()) {
+            QMessageBox::warning(this, "Dequeue", "La cola está vacía.");
+            return;
+        }
+        int val = cola.dequeue();
+        QMessageBox::information(this, "Dequeue", QString("Valor eliminado: %1").arg(val));
+    }
+    else if (opcion == 3) {
+        // Peek
+        if (cola.isEmpty()) {
+            QMessageBox::warning(this, "Peek", "La cola está vacía.");
+            return;
+        }
+        int val = cola.peek();
+        QMessageBox::information(this, "Peek", QString("Valor en el frente: %1").arg(val));
+    }
+
+    areaGrafico->setValores(cola.getValues());
+    areaGrafico->update();
 }
 
-void GraficadorEstruDat::eliminarEjemplo() {
-    QVector<int> valores;
-    switch (estructuraActual) {
-    case LINKED_LIST:
-        listaSimple.eliminarPos(0);
-        listaSimple.imprimir();
-        valores = listaSimple.getValues();
-        break;
-    case DOUBLE_LL:
-        listaDoble.eliminarPos(0);
-        listaDoble.imprimirAdelante();
-        valores = listaDoble.getValuesForward();
-        break;
-    case STACK:
-        pila.pop();
-        pila.imprimir();
-        valores = pila.getValues();
-        break;
-    case QUEUE:
-        cola.dequeue();
-        cola.imprimir();
-        valores = cola.getValues();
-        break;
-    default: break;
-    }
-    areaGrafico->setValores(valores);
-}
-
-
-void GraficadorEstruDat::accionLista(int opcion){
-    if (opcion ==1){
-        //ACCIONES Insertar
-            //Hacer que el Usuario elija entre
-        //    bool insertarPos(int pos, int val);
-        //    void insertarInicio(int val);
-        //    void insertarFinal(int val);
-        //y hacerlo ingresar los valores requeridos
-    }
-
-    if(opcion==2){
-        //Acciones Borrar
-                //Hacer que el Usuario elija entre
-
-        /*
-        void eliminarVal(int val);
-        bool eliminarPos(int pos);
-        y hacerlo ingresar o el valor o la poscicion
-
-         */
-    }
-
-    if(opcion==3){
-        //Acciones Datos
-            //llamar buscar, y hacer al usuario poner que valor buscar
-    }
-
-}

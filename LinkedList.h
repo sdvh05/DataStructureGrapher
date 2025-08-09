@@ -20,6 +20,7 @@ public:
     bool eliminarPos(int pos);
 
     bool buscar(int val) const;
+
     void imprimir() const;
     void limpiar();
 

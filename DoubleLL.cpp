@@ -123,6 +123,16 @@ bool DoubleLL::eliminarPos(int pos) {
 
 //-----------------------------------------------------------
 
+bool DoubleLL::buscar(int val) const {
+    NodoDLL* actual = head;
+    while (actual != nullptr) {
+        if (actual->valor == val) {
+            return true;
+        }
+        actual = actual->siguiente;
+    }
+    return false;
+}
 
 
 void DoubleLL::imprimirAdelante() const {

@@ -21,10 +21,10 @@ public:
     bool eliminarPos(int pos);
 
 
-
-
     void imprimirAdelante() const;
     void imprimirAtras() const;
+
+    bool buscar(int val) const;
 
 
     void limpiar();

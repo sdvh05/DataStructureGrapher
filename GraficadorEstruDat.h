@@ -71,8 +71,6 @@ private:
     //funcoines
     void crearInterfaz();
     void cambiarTextos();
-    void insertarEjemplo();
-    void eliminarEjemplo();
 
     void accionPila(int opcion);
     void accionCola(int opcion);
